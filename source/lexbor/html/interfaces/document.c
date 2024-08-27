@@ -1170,6 +1170,11 @@ lxb_html_document_style_remove_my_cb(lexbor_avl_t *avl, lexbor_avl_node_t **root
 static lxb_status_t
 lxb_html_document_event_destroy(lxb_dom_node_t *node)
 {
+    // Node still valid, don't destroy events yet.
+    if (node->ref_count > 1) {
+        return LXB_STATUS_OK;
+    }
+
     lxb_status_t status;
     lxb_html_element_t *el;
     lxb_html_document_t *doc;

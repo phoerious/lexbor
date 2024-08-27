@@ -58,6 +58,7 @@ lxb_html_element_interface_create(lxb_html_document_t *document)
 
     node->owner_document = lxb_html_document_original_ref(document);
     node->type = LXB_DOM_NODE_TYPE_ELEMENT;
+    node->ref_count = 1;
 
     return element;
 }

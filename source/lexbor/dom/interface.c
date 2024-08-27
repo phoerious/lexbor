@@ -105,6 +105,10 @@ lxb_dom_interface_destroy(lxb_dom_interface_t *intrfc)
             return lxb_dom_document_fragment_interface_destroy(intrfc);
 
         default:
+            --node->ref_count;
+            if (node->ref_count > 0) {
+                return intrfc;
+            }
             return lexbor_mraw_free(node->owner_document->mraw, intrfc);
     }
 }

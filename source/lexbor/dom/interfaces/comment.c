@@ -23,6 +23,7 @@ lxb_dom_comment_interface_create(lxb_dom_document_t *document)
 
     node->owner_document = lxb_dom_document_owner(document);
     node->type = LXB_DOM_NODE_TYPE_COMMENT;
+    node->ref_count = 1;
 
     return element;
 }

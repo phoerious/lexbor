@@ -20,6 +20,7 @@ lxb_dom_event_target_create(lxb_dom_document_t *document)
     }
 
     lxb_dom_interface_node(element)->type = LXB_DOM_NODE_TYPE_UNDEF;
+    lxb_dom_interface_node(element)->ref_count = 1;
 
     return element;
 }

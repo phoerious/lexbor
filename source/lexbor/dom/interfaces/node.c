@@ -98,6 +98,7 @@ lxb_dom_node_interface_create(lxb_dom_document_t *document)
 
     element->owner_document = lxb_dom_document_owner(document);
     element->type = LXB_DOM_NODE_TYPE_UNDEF;
+    element->ref_count = 1;
 
     return element;
 }
@@ -124,6 +125,10 @@ lxb_dom_node_t *
 lxb_dom_node_interface_destroy(lxb_dom_node_t *node)
 {
     lxb_dom_document_t *doc = node->owner_document;
+    --node->ref_count;
+    if (node->ref_count > 0) {
+        return node;
+    }
 
     if (doc->ev_destroy != NULL) {
         doc->ev_destroy(node);
@@ -247,6 +252,9 @@ lxb_dom_node_interface_copy(lxb_dom_node_t *dst,
 lxb_dom_node_t *
 lxb_dom_node_destroy(lxb_dom_node_t *node)
 {
+    if (node == NULL) {
+        return NULL;
+    }
     lxb_dom_node_remove(node);
 
     if (node->owner_document->ev_destroy != NULL) {
@@ -261,6 +269,7 @@ lxb_dom_node_destroy_deep(lxb_dom_node_t *root)
 {
     lxb_dom_node_t *tmp;
     lxb_dom_node_t *node = root;
+    lxb_dom_node_t *result = NULL;
 
     while (node != NULL) {
         if (node->first_child != NULL) {
@@ -276,7 +285,7 @@ lxb_dom_node_destroy_deep(lxb_dom_node_t *root)
             }
 
             if (node == root) {
-                lxb_dom_node_destroy(node);
+                result = lxb_dom_node_destroy(node);
 
                 break;
             }
@@ -289,7 +298,7 @@ lxb_dom_node_destroy_deep(lxb_dom_node_t *root)
         }
     }
 
-    return NULL;
+    return result;
 }
 
 lxb_dom_node_t *
@@ -451,6 +460,9 @@ lxb_dom_node_insert_after(lxb_dom_node_t *to, lxb_dom_node_t *node)
 void
 lxb_dom_node_remove_wo_events(lxb_dom_node_t *node)
 {
+    if (node == NULL) {
+        return;
+    }
     if (node->parent != NULL) {
         if (node->parent->first_child == node) {
             node->parent->first_child = node->next;
@@ -477,6 +489,9 @@ lxb_dom_node_remove_wo_events(lxb_dom_node_t *node)
 void
 lxb_dom_node_remove(lxb_dom_node_t *node)
 {
+    if (node == NULL) {
+        return;
+    }
     if (node->owner_document->ev_remove != NULL) {
         node->owner_document->ev_remove(node);
     }
